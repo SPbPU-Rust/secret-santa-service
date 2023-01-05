@@ -1,10 +1,16 @@
 use std::{
-    //fs,
+    //fs, //TODO: перетащить в другой модуль
     io::{prelude::*, BufReader},
     net::{TcpListener, TcpStream},
 };
-use serde::{Serialize, Deserialize};
-use serde_json::{Result, Value, Map};
+//use serde::{Serialize, Deserialize}; //TODO: перетащить в другой модуль
+use serde_json::{Value, Map};
+
+// включение модулей (разделение кода - для удобства командной разработки); в соседних файлах .rs - включать уже через use crate::имя_модуля
+mod defs;
+mod query_proc;
+mod state;
+mod auth;
 
 const LISTENER_ADDRESS: &str = "0.0.0.0:8080";
 
@@ -29,7 +35,8 @@ fn handle_connection(mut stream: TcpStream) {
     println!("Main Header: {:#?}", http_query);
     println!("Request: {:#?}", http_request);
     
-    // let contents = fs::read_to_string("Cargo.toml").unwrap(); - как читать из файла //TODO: на релизе убрать этот коммент
+    //TODO: на релизе убрать этот коммент
+    // let contents = fs::read_to_string("Cargo.toml").unwrap(); - как читать из файла
 
     // принимать только POST-запросы (рассчитываем, что JSON будет в теле запроса)
     if http_query.get(0).unwrap().to_ascii_uppercase() == "POST" {
@@ -58,7 +65,7 @@ fn handle_connection(mut stream: TcpStream) {
                 break;
             }
         }
-        let mut status_line: String = "HTTP/1.1 200 OK".to_string();
+        let mut status_line: String = defs::HTTP_STATUS_200.to_string();
         let mut contents: String = "".to_string();
         if qsize > 0 {
             buf_reader_ref = &mut buf_reader;
@@ -68,6 +75,8 @@ fn handle_connection(mut stream: TcpStream) {
                 Ok(v) => v,
                 Err(e) => {
                     eprintln!("(X) Сломанная строка UTF-8: {}", e);
+                    stream.write_all(defs::HTTP_STATUS_500.as_bytes()).unwrap();
+                    stream.write_all("\r\n\r\n".as_bytes()).unwrap();
                     return;
                 }
             };
@@ -77,29 +86,20 @@ fn handle_connection(mut stream: TcpStream) {
                 Ok(v) => v,
                 Err(e) => {
                     eprintln!("(X) Сломанный формат JSON-строки: {}", e);
+                    stream.write_all(defs::HTTP_STATUS_500.as_bytes()).unwrap();
+                    stream.write_all("\r\n\r\n".as_bytes()).unwrap();
                     return;
                 }
             };
-            // Полученная структура - в req_map
-            // Перед считыванием значения по ключу обязательно проверять, что пара с желаемым ключом есть в структуре, чтобы не было вылета
-            // TODO: По результатам чтения и обработки req_map и выполнения в результате каких-то действий - изменить значения contents и status_line
-            // TODO: здесь будет всякая обработка, переход из состояния в состояние, запись и чтение файла/бд
             println!("Тело POST-запроса как JSON-объект: {:#?}", req_map);
-            // шаблонные примеры - как считывать значения пар "ключ:значение"
-            if req_map.contains_key("sat") {
-                println!("sat: {}", req_map["sat"]);
-            }
-            if req_map.contains_key("action") {
-                println!("action: {}", req_map["action"]);
-            }
+            (status_line, contents) = query_proc::process_req(req_map);
         }
         // формирование ответа
         let length = contents.len();
-        let response =
-            format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+        let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
         stream.write_all(response.as_bytes()).unwrap();
     } else {
-        let response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
-        stream.write_all(response.as_bytes()).unwrap();
+        stream.write_all(defs::HTTP_STATUS_405.as_bytes()).unwrap();
+        stream.write_all("\r\n\r\n".as_bytes()).unwrap();
     }
 }
