@@ -3,8 +3,10 @@ use std::{
     io::{prelude::*, BufReader},
     net::{TcpListener, TcpStream},
 };
+use serde::{Serialize, Deserialize};
+use serde_json::{Result, Value, Map};
 
-const LISTENER_ADDRESS: &str = "127.0.0.1:8080";
+const LISTENER_ADDRESS: &str = "0.0.0.0:8080";
 
 fn main() {
     let listener = TcpListener::bind(LISTENER_ADDRESS).unwrap();
@@ -64,13 +66,34 @@ fn handle_connection(mut stream: TcpStream) {
             buf_reader_ref.read_exact(&mut qbody).unwrap();
             let query_body_str = match String::from_utf8(qbody) {
                 Ok(v) => v,
-                Err(e) => panic!("Broken UTF-8 sequence: {}", e)
+                Err(e) => {
+                    eprintln!("(X) Сломанная строка UTF-8: {}", e);
+                    return;
+                }
             };
             println!("POST Body: {}", query_body_str);
-            // TODO: убедиться, что строка в query_body_str - корректная JSON-строка
-            // TODO: если да, то десериализовать ее в объект и обработать; по результатам обработки изменить contents и status_line
+            // Десериализация запроса
+            let req_map: Map<String, Value> = match serde_json::from_str(query_body_str.as_str()) {
+                Ok(v) => v,
+                Err(e) => {
+                    eprintln!("(X) Сломанный формат JSON-строки: {}", e);
+                    return;
+                }
+            };
+            // Полученная структура - в req_map
+            // Перед считыванием значения по ключу обязательно проверять, что пара с желаемым ключом есть в структуре, чтобы не было вылета
+            // TODO: По результатам чтения и обработки req_map и выполнения в результате каких-то действий - изменить значения contents и status_line
+            // TODO: здесь будет всякая обработка, переход из состояния в состояние, запись и чтение файла/бд
+            println!("Тело POST-запроса как JSON-объект: {:#?}", req_map);
+            // шаблонные примеры - как считывать значения пар "ключ:значение"
+            if req_map.contains_key("sat") {
+                println!("sat: {}", req_map["sat"]);
+            }
+            if req_map.contains_key("action") {
+                println!("action: {}", req_map["action"]);
+            }
         }
-        // ответ
+        // формирование ответа
         let length = contents.len();
         let response =
             format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
