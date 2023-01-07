@@ -36,3 +36,16 @@ pub async fn get_room(
 pub async fn create_room(db: Data<MongoRepo>, room: Json<Room>) -> Result<impl Responder, Error> {
     db.create_room(room.into_inner()).await.map(Json)
 }
+#[get("/start/{id}/{admin_token}")]
+pub async fn start_game(db: Data<MongoRepo>, path: Path<(String, String)>) -> Result<impl Responder, Error> {
+    let (id, admin_token) = path.into_inner();
+    db.start_game(id.as_str(), admin_token.as_str()).await.map(Json)
+}
+#[get("/end/{id}/{admin_token}")]
+pub async fn end_game(
+    db: Data<MongoRepo>,
+    path: Path<(String, String)>
+) -> Result<impl Responder, Error> {
+    let (id, admin_token) = path.into_inner();
+    db.end_game(id.as_str(), admin_token.as_str()).await.map(Json)
+}

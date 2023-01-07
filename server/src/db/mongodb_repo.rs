@@ -127,4 +127,94 @@ impl MongoRepo {
             }
         }
     }
+
+    pub async fn start_game(&self, id: &str, admin_token: &str) -> Result<Room, Error> {
+        let obj_id = ObjectId::parse_str(id)?;
+        let filter = doc! {"_id": obj_id};
+        let mut game: Result<Room, Error> = self
+            .santas
+            .find_one(filter.clone(), None)
+            .await?
+            .ok_or(Error::TaskNotFound);
+
+        let mut game_status = game.as_ref().unwrap().game_status;
+        if game_status.is_none() {
+            game_status = Some(0);
+        }
+        let mut game_status = game_status.unwrap();
+
+        let mut users = game.as_mut().unwrap().users.clone();
+        if users.is_none() {
+            users = Some(Vec::new());
+        }
+        let mut users = users.unwrap();
+
+        if users.len() == 1 {
+            return Err(Error::CannotStartAlone);
+        } else {
+            if game_status == 0 {
+                let game_token = game.as_ref().unwrap().admin_token.clone();
+                if admin_token == game_token {
+                    game_status = 1;
+                    let mut rng = thread_rng();
+                    users.shuffle(&mut rng);
+                    self.santas
+                        .update_one(
+                            filter.clone(),
+                            doc! {"$set": {"game_status": game_status,
+                            "users": &users}},
+                            None,
+                        )
+                        .await?;
+                    let game = self
+                        .santas
+                        .find_one(filter.clone(), None)
+                        .await?
+                        .ok_or(Error::TaskNotFound);
+                    return game;
+                } else {
+                    return Err(Error::IncorrectAdminToken);
+                }
+            } else if game_status == 1 {
+                return Err(Error::GameStarted);
+            } else {
+                return Err(Error::GameEnded);
+            }
+        }
+    }
+    pub async fn end_game(&self, id: &str, admin_token: &str) -> Result<Room, Error> {
+        let obj_id = ObjectId::parse_str(id)?;
+        let filter = doc! {"_id": obj_id};
+        let mut game: Result<Room, Error> = self
+            .santas
+            .find_one(filter.clone(), None)
+            .await?
+            .ok_or(Error::TaskNotFound);
+        let mut game_status = game.as_mut().unwrap().game_status;
+        if game_status.is_none() {
+            game_status = Some(0);
+        }
+        let mut game_status = game_status.unwrap();
+
+        if game_status == 0 {
+            return Err(Error::GameNotStarted);
+        } else if game_status == 1 {
+            let game_token = game.as_ref().unwrap().admin_token.clone();
+            if admin_token == game_token {
+                game_status = 2;
+                self.santas
+                    .update_one(
+                        filter.clone(),
+                        doc! {"$set": {"game_status": game_status}},
+                        None,
+                    )
+                    .await?;
+                return game;
+            } else {
+                return Err(Error::IncorrectAdminToken);
+            }
+        } else {
+            return Err(Error::GameEnded);
+        }
+    }
 }
