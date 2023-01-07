@@ -1,4 +1,4 @@
-fn make_new_admin(aid: u64, uid: u64, gid: u64, data_state: &mut DataState) {
+pub(crate) fn make_new_admin(aid: u64, uid: u64, gid: u64, data_state: &mut DataState) {
     for cid in data_state.user_in_group {
         if cid.uid == uid && cid.gid == gid {
             cid.is_admin = true;
@@ -7,7 +7,7 @@ fn make_new_admin(aid: u64, uid: u64, gid: u64, data_state: &mut DataState) {
     }
 }
 
-fn remove_admin_rights(aid: u64, id: u64, gid: u64, data_state: &mut DataState) {
+pub(crate) fn remove_admin_rights(aid: u64, id: u64, gid: u64, data_state: &mut DataState) {
     for cid in data_state.user_in_group {
         if cid.uid == aid && cid.gid == gid {
             if cid.is_admin = true {
@@ -22,7 +22,7 @@ fn remove_admin_rights(aid: u64, id: u64, gid: u64, data_state: &mut DataState) 
     }
 }
 
-fn leave_group(aid: u64, gid: u64, data_state: &mut DataState) {
+pub(crate) fn leave_group(aid: u64, gid: u64, data_state: &mut DataState) {
     if check_admins_number(gid, data_state) > 1 {
         for cid in data_state.user_in_group {
             if cid.uid == aid && cid.is_admin == true {
@@ -33,7 +33,7 @@ fn leave_group(aid: u64, gid: u64, data_state: &mut DataState) {
     }
 }
 
-fn remove_group(aid: u64, gid: u64, data_state: &mut DataState) {
+pub(crate) fn remove_group(aid: u64, gid: u64, data_state: &mut DataState) {
     for cg in data_state.group {
         if cg.id == gid {
             data_state.group.remove(cg);
@@ -43,7 +43,7 @@ fn remove_group(aid: u64, gid: u64, data_state: &mut DataState) {
     }
 }
 
-fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) {
+pub(crate) fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) {
     /* */
     for cg in data_state.group {
         if cg.id == gid {
@@ -52,7 +52,7 @@ fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) {
     }
 }
 
-fn check_admins_number(gid: u64, data_state: &mut DataState) -> u64 {
+pub(crate) fn check_admins_number(gid: u64, data_state: &mut DataState) -> u64 {
     let count: u64 = 0;
     for cid in data_state.user_in_group {
         if cid.gid == gid && cid.is_admin {
