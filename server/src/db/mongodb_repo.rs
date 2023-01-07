@@ -217,4 +217,46 @@ impl MongoRepo {
             return Err(Error::GameEnded);
         }
     }
+    pub async fn delete_room(&self, id: &str, admin_token: &str) -> Result<Room, Error> {
+        let obj_id = ObjectId::parse_str(id)?;
+        let filter = doc! {"_id": obj_id};
+        let room = self
+            .santas
+            .find_one(filter.clone(), None)
+            .await?
+            .ok_or(Error::TaskNotFound);
+
+        if admin_token == room.as_ref().unwrap().admin_token {
+            self.santas.delete_one(filter, None).await?;
+            return room;
+        }
+        return Err(Error::IncorrectAdminToken);
+    }
+    pub async fn delete_user(
+        &self,
+        id: &str,
+        name: &str,
+        admin_token: &str,
+    ) -> Result<Room, Error> {
+        let obj_id = ObjectId::parse_str(id)?;
+        let filter = doc! {"_id": obj_id};
+        let mut room = self
+            .santas
+            .find_one(filter.clone(), None)
+            .await?
+            .ok_or(Error::TaskNotFound);
+        if room.as_ref().unwrap().users.as_ref().unwrap().len() == 1 {
+            return Err(Error::CannotStartAlone);
+        } else if admin_token == room.as_ref().unwrap().admin_token {
+            let users = room.as_mut().unwrap().users.as_mut().unwrap();
+            users.retain(|value| *value != name);
+            let filter_update_user = doc! {"$set": {"users": users.clone()}};
+            self.santas
+                .update_one(filter, filter_update_user, None)
+                .await?;
+            return room;
+        } else {
+            return Err(Error::IncorrectAdminToken);
+        }
+    }
 }

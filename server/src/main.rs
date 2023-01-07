@@ -3,7 +3,7 @@ mod models;
 mod db;
 
 use actix_web::{get, App, HttpResponse, HttpServer, Responder, web::Data};
-use api::santas::{create_room, get_room, start_game, end_game};
+use api::santas::{create_room, get_room, start_game, end_game, delete_room, delete_user};
 use db::mongodb_repo::MongoRepo;
 use std::env;
 use dotenv::dotenv;
@@ -27,6 +27,8 @@ async fn main() -> anyhow::Result<()> {
             .service(get_room)
             .service(start_game)
             .service(end_game)
+            .service(delete_room)
+            .service(delete_user)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

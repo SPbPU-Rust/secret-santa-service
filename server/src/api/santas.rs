@@ -49,3 +49,13 @@ pub async fn end_game(
     let (id, admin_token) = path.into_inner();
     db.end_game(id.as_str(), admin_token.as_str()).await.map(Json)
 }
+#[delete("/room/{id}/{admin_token}")]
+pub async fn delete_room(db: Data<MongoRepo>, info: Path<(String, String)>) -> Result<impl Responder, Error> {
+    let (id, admin_token) = info.into_inner();
+    db.delete_room(id.as_str(), admin_token.as_str()).await.map(Json)
+}
+#[delete("/room/{id}/{name}/{admin_token}")]
+pub async fn delete_user(db: Data<MongoRepo>, info: Path<(String, String, String)>) -> Result<impl Responder, Error>{
+    let (id, name, admin_token) = info.into_inner();
+   db.delete_user(id.as_str(), name.as_str(), admin_token.as_str()).await.map(Json)
+}
