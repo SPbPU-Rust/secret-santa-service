@@ -36,3 +36,18 @@ fn find_out_ss(id: u64, gid: u64) -> String {
     }
 }
 
+fn join_group(id: u64, gid: u64) -> String {
+    for cid in data_state.group {
+        if cid.id == gid {
+            if cid.is_closed == true {
+                let s = String::from("this group is closed");
+                return s;
+            }
+            else {
+                let new_user_in_group = UserInGroup(id, gid, false, 0);
+                user_in_group.push(new_user_in_group);
+                let s = String::from("user {} joined group", id, gid);
+            }
+        }
+    }
+}
