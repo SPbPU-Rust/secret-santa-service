@@ -23,3 +23,16 @@ impl ResponseError for Error {
         }
     }
 }
+
+#[get("/room/{id}/{name}")]
+pub async fn get_room(
+    db: Data<MongoRepo>,
+    path: Path<(String, String)>,
+) -> Result<impl Responder, Error> {
+    let (id, name) = path.into_inner();
+    db.get_room(id.as_str(), name.as_str()).await.map(Json)
+}
+#[post("/create_room")]
+pub async fn create_room(db: Data<MongoRepo>, room: Json<Room>) -> Result<impl Responder, Error> {
+    db.create_room(room.into_inner()).await.map(Json)
+}
