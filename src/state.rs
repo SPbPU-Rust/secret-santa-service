@@ -1,21 +1,29 @@
 // Структуры данных
 pub(crate) struct Auth {
-    token: String,
-    uid: u64
+    pub(crate) token: String,
+    pub(crate) uid: u64
 }
 pub(crate) struct User {
-    id: u64,
-    name: String,
-    password: String
+    pub(crate) id: u64,
+    pub(crate) name: String,
+    pub(crate) password: String
 }
 pub(crate) struct Group {
-    id: u64,
-    name: String,
-    is_closed: bool
+    pub(crate) id: u64,
+    pub(crate) name: String,
+    pub(crate) is_closed: bool
 }
 pub(crate) struct UserInGroup {
-    uid: u64,
-    gid: u64,
-    is_admin: bool,
-    santa_for: u64
+    pub(crate) uid: u64,
+    pub(crate) gid: u64,
+    pub(crate) is_admin: bool,
+    pub(crate) santa_for: u64
+}
+
+// Состояние
+pub(crate) struct DataState {
+    pub(crate) auth: Vec<Auth>,
+    pub(crate) user: Vec<User>,
+    pub(crate) user_in_group: Vec<UserInGroup>,
+    pub(crate) group: Vec<Group>
 }

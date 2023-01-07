@@ -5,6 +5,7 @@ use std::{
 };
 //use serde::{Serialize, Deserialize}; //TODO: перетащить в другой модуль
 use serde_json::{Value, Map};
+use state::*;
 
 // включение модулей (разделение кода - для удобства командной разработки); в соседних файлах .rs - включать уже через use crate::имя_модуля
 mod defs;
@@ -16,13 +17,19 @@ const LISTENER_ADDRESS: &str = "0.0.0.0:8080";
 
 fn main() {
     let listener = TcpListener::bind(LISTENER_ADDRESS).unwrap();
+    let mut data_state = DataState {
+        auth: Vec::<Auth>::new(),
+        user: Vec::<User>::new(),
+        user_in_group: Vec::<UserInGroup>::new(),
+        group: Vec::<Group>::new()
+    };
     for stream in listener.incoming() {
         let stream = stream.unwrap();
-        handle_connection(stream);
+        handle_connection(stream, &mut data_state);
     }
 }
 
-fn handle_connection(mut stream: TcpStream) {
+fn handle_connection(mut stream: TcpStream, data_state: &mut DataState) {
     let mut buf_reader = BufReader::new(&mut stream);
     let mut buf_reader_ref = &mut buf_reader;
     let http_request: Vec<_> = buf_reader_ref
@@ -92,7 +99,7 @@ fn handle_connection(mut stream: TcpStream) {
                 }
             };
             println!("Тело POST-запроса как JSON-объект: {:#?}", req_map);
-            (status_line, contents) = query_proc::process_req(req_map);
+            (status_line, contents) = query_proc::process_req(req_map, data_state);
         }
         // формирование ответа
         let length = contents.len();
