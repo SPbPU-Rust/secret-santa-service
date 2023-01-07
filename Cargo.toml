@@ -1,0 +1,12 @@
+[package]
+name = "secret-santa-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = "*"
+sqlx = { version = "0.6.2", features = ["runtime-async-std-native-tls", "sqlite", "offline"] }
+tide = "0.14.0"
+async-std = { version = "1.6.0", features = ["attributes"] }
+serde = { version = "1.0", features = ["derive"] }
+rand = "0.8.5"
