@@ -1,2 +1,1 @@
-# secret-santa-service
-Web service to allocate secret santas
+# rust_secsanta_simple
