@@ -1,7 +1,10 @@
-fn make_group(id: u64, name: String) -> Group{
-    let group = Group(1, name, false);
-    /*... */
-    return group;
+fn make_group(id: u64, name: String) -> u64 {
+    let gid: u64 = group.len()+1;
+    let new_group = Group(gid, name, false);
+    group.push(new_group);
+    let new_user_in_group = UserInGroup(id, gid, true, 0);
+    user_in_group.push(new_user_in_group);
+    return gid;
 }
 
 fn list_of_users_groups(id: u64) -> Vec::<u64>{
@@ -14,10 +17,22 @@ fn list_of_users_groups(id: u64) -> Vec::<u64>{
     return v;
 }
 
-fn find_out_ss(id: u64, gid: u64) -> u64 {
+fn find_out_ss(id: u64, gid: u64) -> String {
     for cid in data_state.user_in_group {
         if cid.uid == id and cid.gid == gid {
-            return santa_for;
+            if santa_for == 0 {
+                let s = String::from("Santa for no one");
+                return s;
+            }
+            else {
+                for ss in data_state.user{
+                    if ss.id == santa_for {
+                        let s = String::from("You are Santa for {}, id: {}", ss.name, santa_for);
+                        return s;
+                    }
+                }
+            }
         }
     }
 }
+
