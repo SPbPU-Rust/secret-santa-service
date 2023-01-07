@@ -3,6 +3,7 @@ mod models;
 mod db;
 
 use actix_web::{get, App, HttpResponse, HttpServer, Responder, web::Data};
+use api::santas::{create_room, get_room};
 use db::mongodb_repo::MongoRepo;
 use std::env;
 use dotenv::dotenv;
@@ -22,6 +23,8 @@ async fn main() -> anyhow::Result<()> {
     HttpServer::new(move || {
         App::new().app_data(db_data.clone())
             .service(hello)
+            .service(create_room)
+            .service(get_room)
     })
     .bind(("127.0.0.1", 8080))?
     .run()
