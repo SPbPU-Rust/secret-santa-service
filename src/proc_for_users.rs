@@ -1,4 +1,4 @@
-fn make_group(id: u64, name: String) -> u64 {
+fn make_group(id: u64, name: String, data_state: &mut DataState) -> u64 {
     let gid: u64 = group.len() + 1;
     let new_group = Group(gid, name, false);
     group.push(new_group);
@@ -7,7 +7,7 @@ fn make_group(id: u64, name: String) -> u64 {
     return gid;
 }
 
-fn list_of_users_groups(id: u64) -> Vec<u64> {
+fn list_of_users_groups(id: u64, data_state: &mut DataState) -> Vec<u64> {
     let v = Vec::<u64>;
     for cid in data_state.user_in_group {
         if id == cid.uid {
@@ -17,7 +17,7 @@ fn list_of_users_groups(id: u64) -> Vec<u64> {
     return v;
 }
 
-fn find_out_ss(id: u64, gid: u64) -> String {
+fn find_out_ss(id: u64, gid: u64, data_state: &mut DataState) -> String {
     for cid in data_state.user_in_group {
         if cid.uid == id && cid.gid == gid {
             if santa_for == 0 {
@@ -35,7 +35,7 @@ fn find_out_ss(id: u64, gid: u64) -> String {
     }
 }
 
-fn join_group(id: u64, gid: u64) -> String {
+fn join_group(id: u64, gid: u64, data_state: &mut DataState) -> String {
     for cid in data_state.group {
         if cid.id == gid {
             if cid.is_closed == true {
