@@ -56,6 +56,7 @@ pub(crate) fn process_req(req: Map<String, Value>, data_state: &mut DataState) -
                             let mut resp_arr: String = "{\"group_ids\":[".to_string();
                             for urec in gids {
                                 resp_arr += &urec.to_string();
+                                resp_arr += ",";
                             }
                             resp_arr += "null]}";
                             (defs::HTTP_STATUS_200.to_string(), resp_arr.to_string())
@@ -150,18 +151,6 @@ pub(crate) fn process_req(req: Map<String, Value>, data_state: &mut DataState) -
                                 false => err_lacking_fields
                             }
                         },
-                        /*Some("rename_group") => {
-                            match req.contains_key("gid") && req["gid"].is_u64() && req.contains_key("name") && req["name"].is_string() {
-                                true => {
-                                    let gid = req["gid"].as_u64().unwrap();
-                                    match gr_adm::remove_admin_rights(uid, uid, gid, data_state) {
-                                        true => (defs::HTTP_STATUS_200.to_string(), "{\"msg\":\"Вы сняли с себя права администратора в группе\"}".to_string()),
-                                        false => (defs::HTTP_STATUS_404.to_string(), "{\"error\":\"Не удалось снять с себя права администратора в группе\"}".to_string())
-                                    }
-                                },
-                                false => err_lacking_fields
-                            }
-                        },*/
                         Some("start_mission") => {
                             match req.contains_key("gid") && req["gid"].is_u64() {
                                 true => {

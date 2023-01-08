@@ -41,8 +41,8 @@ fn handle_connection(mut stream: TcpStream, data_state: &mut DataState) {
         .collect();
     // вектор из элементов: 0 - метод запроса, 1 - путь, 2 - протокол+версия
     let http_query: Vec<_> = http_request.get(0).unwrap().split(" ").collect();
-    println!("Main Header: {:#?}", http_query);
-    println!("Request: {:#?}", http_request);
+    //println!("Main Header: {:#?}", http_query);
+    //println!("Request: {:#?}", http_request);
     
     //TODO: на релизе убрать этот коммент
     // let contents = fs::read_to_string("Cargo.toml").unwrap(); - как читать из файла
@@ -89,7 +89,7 @@ fn handle_connection(mut stream: TcpStream, data_state: &mut DataState) {
                     return;
                 }
             };
-            println!("POST Body: {}", query_body_str);
+            //println!("POST Body: {}", query_body_str);
             // Десериализация запроса
             let req_map: Map<String, Value> = match serde_json::from_str(query_body_str.as_str()) {
                 Ok(v) => v,
@@ -100,7 +100,7 @@ fn handle_connection(mut stream: TcpStream, data_state: &mut DataState) {
                     return;
                 }
             };
-            println!("Тело POST-запроса как JSON-объект: {:#?}", req_map);
+            //println!("Тело POST-запроса как JSON-объект: {:#?}", req_map);
             (status_line, contents) = query_proc::process_req(req_map, data_state);
         }
         // формирование ответа
