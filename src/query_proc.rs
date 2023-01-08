@@ -39,7 +39,7 @@ pub(crate) fn process_req(req: Map<String, Value>, data_state: &mut DataState) -
                                     let gid = gr_usr::make_group(uid, req["name"].as_str().unwrap().to_string(), data_state);
                                     match gid {
                                         0 => INTERNAL_ERROR,
-                                        _ => (defs::HTTP_STATUS_200.to_string(), "{\"id\":\"".to_string() + &gid.to_string() + "\"}")
+                                        _ => (defs::HTTP_STATUS_200.to_string(), "{\"id\":".to_string() + &gid.to_string() + "}")
                                     }
                                 },
                                 false => LACKING_FIELDS
@@ -129,10 +129,10 @@ pub(crate) fn process_req(req: Map<String, Value>, data_state: &mut DataState) -
                                         "\", \"is_closed\": " + &group_is_closed.to_string() + ", \"members\":[";
                                     for urec in urecs {
                                         resp_arr += &("{\"uid\":".to_string() + &urec.uid.to_string() +
-                                            ", \"is_admin\": " + &urec.is_admin.to_string() + "}");
+                                            ", \"is_admin\": " + &urec.is_admin.to_string() + "},");
                                     }
-                                    resp_arr += "]}";
-                                    (defs::HTTP_STATUS_200.to_string(), "".to_string())
+                                    resp_arr += "{}]}";
+                                    (defs::HTTP_STATUS_200.to_string(), resp_arr.to_string())
                                 },
                                 false => NOT_FOUND
                             }
