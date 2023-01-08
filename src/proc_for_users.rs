@@ -56,7 +56,7 @@ pub(crate) fn list_users_in_group_recs(gid: u64, data_state: &mut DataState) -> 
 
 // Найти, для кого пользователь uid является Сантой в группе gid
 pub(crate) fn find_out_ss(uid: u64, gid: u64, data_state: &mut DataState) -> u64 {
-    if (gid > 0) {
+    if gid > 0 {
         let data_state_uig_ref = &mut data_state.user_in_group;
         for c in data_state_uig_ref {
             if c.uid == uid && c.gid == gid {

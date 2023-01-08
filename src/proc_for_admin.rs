@@ -1,6 +1,4 @@
-use std::ptr::null_mut;
-
-use crate::{state::{DataState, Group, UserInGroup}, proc_for_users};
+use crate::state::{DataState, UserInGroup};
 
 fn is_group_admin(uid: u64, gid: u64, data_state: &mut DataState) -> bool {
     let data_stat_uig_ref = &mut data_state.user_in_group;
@@ -26,7 +24,7 @@ pub(crate) fn check_admins_number(gid: u64, data_state: &mut DataState) -> u64 {
 
 // дать админку
 pub(crate) fn make_new_admin(aid: u64, target_uid: u64, gid: u64, data_state: &mut DataState) -> bool {
-    if (is_group_admin(aid, gid, data_state)) {
+    if is_group_admin(aid, gid, data_state) {
         let data_state_uig_ref = &mut data_state.user_in_group;
         for c in data_state_uig_ref {
             if c.uid == target_uid && c.gid == gid {

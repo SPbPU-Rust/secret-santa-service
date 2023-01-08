@@ -113,9 +113,9 @@ pub(crate) fn process_req(req: Map<String, Value>, data_state: &mut DataState) -
                                 true => {
                                     let gid = req["gid"].as_u64().unwrap();
                                     let target_uid = req["target_uid"].as_u64().unwrap();
-                                    match uid {
-                                        target_uid => (defs::HTTP_STATUS_403.to_string(), "{\"error\":\"Нельзя снять с себя права администратора в группе, используйте операцию revoke_self\"}".to_string()),
-                                        _ => {
+                                    match uid == target_uid {
+                                        true => (defs::HTTP_STATUS_403.to_string(), "{\"error\":\"Нельзя снять с себя права администратора в группе, используйте операцию revoke_self\"}".to_string()),
+                                        false => {
                                             match gr_adm::remove_admin_rights(uid, target_uid, gid, data_state) {
                                                 true => (defs::HTTP_STATUS_200.to_string(), "{\"msg\":\"Вы сняли с данного пользователя права администратора в группе\"}".to_string()),
                                                 false => (defs::HTTP_STATUS_404.to_string(), "{\"error\":\"Не удалось снять с этого пользователя права администратора в группе\"}".to_string())
@@ -183,6 +183,28 @@ pub(crate) fn process_req(req: Map<String, Value>, data_state: &mut DataState) -
         } else {
             // операции, не требующие авторизацию (туда нельзя отправлять токен)
             (s, c) = match req["action"].as_str() {
+                Some("user_info") => {
+                    match req.contains_key("uid") && req["uid"].is_u64() {
+                        true => {
+                            let uid = req["uid"].as_u64().unwrap();
+                            let data_state_user_ref = &data_state.user;
+                            let mut user_found = false;
+                            let mut user_name = "".to_string();
+                            for urec in data_state_user_ref {
+                                if urec.id == uid {
+                                    user_name = urec.name.clone();
+                                    user_found = true;
+                                    break;
+                                }
+                            }
+                            match user_found {
+                                false => (defs::HTTP_STATUS_404.to_string(), "{\"error\":\"Не найден пользователь с таким id\"}".to_string()),
+                                true => (defs::HTTP_STATUS_200.to_string(), "{\"id\":".to_string() + &uid.to_string() + ",\"name\":\"" + &user_name + "\"}")
+                            }
+                        },
+                        false => err_lacking_fields
+                    }
+                },
                 Some("login") => {
                     match req.contains_key("uid") && req.contains_key("password") &&
                           req["uid"].is_u64() && req["password"].is_string() {
