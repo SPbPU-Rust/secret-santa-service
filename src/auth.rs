@@ -28,7 +28,6 @@ pub(crate) fn auth(uid: u64, password: String, data_state: &mut DataState) -> St
         for rec in data_state_user_ref {
             if uid == rec.id {
                 let salted_pw = get_salted_pw(password);
-                println!("salted_pw {}", salted_pw);
                 let pw_hash_base64 = get_sha512_base64(salted_pw);
                 if pw_hash_base64 == rec.password {
                     let rand0: u64 = rand::random();

@@ -1,4 +1,4 @@
-use crate::state::DataState;
+use crate::state::{DataState, UserInGroup};
 
 fn is_group_admin(uid: u64, gid: u64, data_state: &mut DataState) -> bool {
     let data_stat_uig_ref = &mut data_state.user_in_group;
@@ -24,7 +24,7 @@ pub(crate) fn check_admins_number(gid: u64, data_state: &mut DataState) -> u64 {
 
 // дать админку
 pub(crate) fn make_new_admin(aid: u64, target_uid: u64, gid: u64, data_state: &mut DataState) -> bool {
-    if (is_group_admin(aid, gid, data_state)) {
+    if is_group_admin(aid, gid, data_state) {
         let data_state_uig_ref = &mut data_state.user_in_group;
         for c in data_state_uig_ref {
             if c.uid == target_uid && c.gid == gid {
@@ -52,16 +52,20 @@ pub(crate) fn remove_admin_rights(aid:u64, target_aid: u64, gid: u64, data_state
     return false;
 }
 
-pub(crate) fn leave_group(aid: u64, gid: u64, data_state: &mut DataState) {
+pub(crate) fn leave_group(aid: u64, gid: u64, data_state: &mut DataState) -> bool {
     if check_admins_number(gid, data_state) > 1 {
         for cid in (0..data_state.user_in_group.len()).rev() {
             let rec = data_state.user_in_group.get(cid).unwrap();
-            if rec.uid == aid && rec.is_admin == true {
-                data_state.user_in_group.remove(cid);
-                return;
+            if rec.uid == aid {
+                if rec.is_admin == true {
+                    data_state.user_in_group.remove(cid);
+                    return true;
+                }
+                return false;
             }
         }
     }
+    return false;
 }
 
 pub(crate) fn remove_group(aid: u64, gid: u64, data_state: &mut DataState) -> bool {
@@ -83,7 +87,7 @@ pub(crate) fn remove_group(aid: u64, gid: u64, data_state: &mut DataState) -> bo
     return false;
 }
 
-// запустить секретных сант, закрыть группу
+// запустить секретных сант, закрыть группу (made by Влада @irlmt)
 pub(crate) fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) -> bool {
     if is_group_admin(aid, gid, data_state) {
         let data_state_group_ref = &mut data_state.group;
@@ -91,16 +95,20 @@ pub(crate) fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) -
             if cg.id == gid {
                 
                 //распределение
-                let mut users_of_group = Vec<UserInGroup>;
-                for cu in data_state.user_in_group {
+                let mut users_of_group = Vec::<&mut UserInGroup>::new();
+                for cu in &mut data_state.user_in_group {
                     if cu.gid == gid {
                         users_of_group.push(cu);
                     }
                 }
-
-                let mut v_digits: [u64; users_of_group.len()];
+                if users_of_group.len() <= 1 {
+                    return false;
+                }
+                //let mut v_digits: [u64; users_of_group.len()];
+                let mut v_digits = Vec::<usize>::new();
                 for i in 0..users_of_group.len() {
-                    v_digits[i] = i;
+                    //v_digits[i] = i;
+                    v_digits.push(i);
                 }
 
                 v_digits.swap(0, users_of_group.len() / 2);
@@ -109,7 +117,7 @@ pub(crate) fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) -
                     v_digits.swap(0, users_of_group.len() / 2 - j);
                 }
 
-                for change in users_of_group.len() {
+                for change in 0..users_of_group.len() {
                     users_of_group[change].santa_for = users_of_group[v_digits[change]].uid;
                 }
                 cg.is_closed = true;
