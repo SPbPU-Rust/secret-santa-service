@@ -87,7 +87,7 @@ pub(crate) fn remove_group(aid: u64, gid: u64, data_state: &mut DataState) -> bo
     return false;
 }
 
-// запустить секретных сант, закрыть группу (made by Влада @irlmt)
+// запустить секретных сант, закрыть группу
 pub(crate) fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) -> bool {
     if is_group_admin(aid, gid, data_state) {
         let data_state_group_ref = &mut data_state.group;
