@@ -12,6 +12,8 @@ mod defs;
 mod query_proc;
 mod state;
 mod auth;
+mod proc_for_admin;
+mod proc_for_users;
 
 const LISTENER_ADDRESS: &str = "0.0.0.0:8080";
 
