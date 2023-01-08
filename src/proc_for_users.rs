@@ -56,21 +56,23 @@ pub(crate) fn list_users_in_group_recs(gid: u64, data_state: &mut DataState) -> 
 
 // Найти, для кого пользователь uid является Сантой в группе gid
 pub(crate) fn find_out_ss(uid: u64, gid: u64, data_state: &mut DataState) -> u64 {
-    let data_state_uig_ref = &mut data_state.user_in_group;
-    for c in data_state_uig_ref {
-        if c.uid == uid && c.gid == gid {
-            /*if cid.santa_for == 0 {
-                let s = String::from("Santa for no one");
-                return s;
-            } else {
-                for ss in data_state.user {
-                    if ss.id == santa_for {
-                        let s = String::from("You are Santa for {}, id: {}", ss.name, santa_for);
-                        return s;
+    if (gid > 0) {
+        let data_state_uig_ref = &mut data_state.user_in_group;
+        for c in data_state_uig_ref {
+            if c.uid == uid && c.gid == gid {
+                /*if cid.santa_for == 0 {
+                    let s = String::from("Santa for no one");
+                    return s;
+                } else {
+                    for ss in data_state.user {
+                        if ss.id == santa_for {
+                            let s = String::from("You are Santa for {}, id: {}", ss.name, santa_for);
+                            return s;
+                        }
                     }
-                }
-            }*/
-            return c.santa_for;
+                }*/
+                return c.santa_for;
+            }
         }
     }
     return 0;
