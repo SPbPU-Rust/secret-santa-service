@@ -89,7 +89,29 @@ pub(crate) fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) -
         let data_state_group_ref = &mut data_state.group;
         for cg in data_state_group_ref {
             if cg.id == gid {
-                // TODO: назначить секретных сант
+                
+                //распределение
+                let mut users_of_group = Vec<UserInGroup>;
+                for cu in data_state.user_in_group {
+                    if cu.gid == gid {
+                        users_of_group.push(cu);
+                    }
+                }
+
+                let mut v_digits: [u64; users_of_group.len()];
+                for i in 0..users_of_group.len() {
+                    v_digits[i] = i;
+                }
+
+                v_digits.swap(0, users_of_group.len() / 2);
+
+                for j in 0..users_of_group.len() / 2 {
+                    v_digits.swap(0, users_of_group.len() / 2 - j);
+                }
+
+                for change in users_of_group.len() {
+                    users_of_group[change].santa_for = users_of_group[v_digits[change]].uid;
+                }
                 cg.is_closed = true;
                 return true;
             }
