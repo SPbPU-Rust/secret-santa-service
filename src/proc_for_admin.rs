@@ -89,32 +89,6 @@ pub(crate) fn remove_group(aid: u64, gid: u64, data_state: &mut DataState) -> bo
 
 // запустить секретных сант, закрыть группу (made by Влада @irlmt)
 pub(crate) fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) -> bool {
-    /*if is_group_admin(aid, gid, data_state) {
-        let data_state_group_ref = &mut data_state.group;
-        let mut found_group = false;
-        for cg in data_state_group_ref {
-            if cg.id == gid {
-                found_group = true;
-                break;
-            }
-        }
-        if !found_group {
-            return false;
-        }
-        if !is_group_admin(aid, gid, data_state) {
-            return false;
-        }
-        // TODO: назначить секретных сант
-        let uig = proc_for_users::list_users_in_group_recs(gid, data_state);
-        let mut idxs = Vec::<usize>::new();
-        for i in 0..uig.len() {
-            idxs.push(i);
-        }
-        // закрытие группы
-        grp.is_closed = true;
-        return true;
-    }
-    return false;*/
     if is_group_admin(aid, gid, data_state) {
         let data_state_group_ref = &mut data_state.group;
         for cg in data_state_group_ref {
