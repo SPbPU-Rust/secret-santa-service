@@ -60,17 +60,6 @@ pub(crate) fn find_out_ss(uid: u64, gid: u64, data_state: &mut DataState) -> u64
         let data_state_uig_ref = &mut data_state.user_in_group;
         for c in data_state_uig_ref {
             if c.uid == uid && c.gid == gid {
-                /*if cid.santa_for == 0 {
-                    let s = String::from("Santa for no one");
-                    return s;
-                } else {
-                    for ss in data_state.user {
-                        if ss.id == santa_for {
-                            let s = String::from("You are Santa for {}, id: {}", ss.name, santa_for);
-                            return s;
-                        }
-                    }
-                }*/
                 return c.santa_for;
             }
         }
@@ -80,18 +69,6 @@ pub(crate) fn find_out_ss(uid: u64, gid: u64, data_state: &mut DataState) -> u64
 
 // Вступить в группу
 pub(crate) fn join_group(uid: u64, gid: u64, data_state: &mut DataState) -> bool {
-    /*for cid in data_state.group {
-        if cid.id == gid {
-            if cid.is_closed == true {
-                let s = String::from("this group is closed");
-                return s;
-            } else {
-                let new_user_in_group = UserInGroup(id, gid, false, 0);
-                user_in_group.push(new_user_in_group);
-                let s = String::from("user {} joined group", id, gid);
-            }
-        }
-    }*/
     let data_state_group_ref = &mut data_state.group;
     for cid in data_state_group_ref {
         if cid.id == gid {
