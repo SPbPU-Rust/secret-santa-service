@@ -104,7 +104,6 @@ pub(crate) fn distr_sec_santas(aid: u64, gid: u64, data_state: &mut DataState) -
                 if users_of_group.len() <= 1 {
                     return false;
                 }
-                //let mut v_digits: [u64; users_of_group.len()];
                 let mut v_digits = Vec::<usize>::new();
                 for i in 0..users_of_group.len() {
                     //v_digits[i] = i;
