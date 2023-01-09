@@ -43,28 +43,9 @@ fn handle_connection(mut stream: TcpStream, data_state: &mut DataState) {
     let http_query: Vec<_> = http_request.get(0).unwrap().split(" ").collect();
     //println!("Main Header: {:#?}", http_query);
     //println!("Request: {:#?}", http_request);
-    
-    //TODO: на релизе убрать этот коммент
-    // let contents = fs::read_to_string("Cargo.toml").unwrap(); - как читать из файла
 
     // принимать только POST-запросы (рассчитываем, что JSON будет в теле запроса)
     if http_query.get(0).unwrap().to_ascii_uppercase() == "POST" {
-        // TODO: убрать на релизе эти комменты
-        /*
-        let http_query_path = http_query.get(1).unwrap().to_string();
-        let (status_line, contents) = match &http_query_path[..] {
-            "/" => {
-                println!("Root Path Queried");
-                ("HTTP/1.1 200 OK", "Корень\n")
-            },
-            "/some_other_path" => {
-                ("HTTP/1.1 200 OK", "Вы обратились к известному вложенному пути\r\n")
-            },
-            _ => {
-                ("HTTP/1.1 404 Not Found", "Это кто?\r\n")
-            }
-        };
-        */
         let mut qsize: usize = 0;
         for reqline in http_request {
             if reqline.starts_with("Content-Length") {
